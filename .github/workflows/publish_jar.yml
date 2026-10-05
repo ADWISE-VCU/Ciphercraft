@@ -2,48 +2,52 @@ name: Publish JAR file to release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+    inputs:
+      bump_type:
+        type: choice
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+        description: "Select the type of version bump for the release"
+  #push:
+  #  branches:
+  #    - main
 
 jobs:
-  create_release:
+  get_version:
+    name: "Generate new release version"
     runs-on: ubuntu-latest
     outputs:
       v-version: ${{ steps.version.outputs.v-version }}
     steps:
-      # Can be major, minor, or patch, Update environment variable INCREMENT_TYPE in GitHub Actions Settings
-      - name: Set increment type from environment variable
-        run: |
-          if [ -z "${{ secrets.INCREMENT_TYPE }}" ]; then
-            echo "increment=patch" >> $GITHUB_ENV
-          else
-            echo "increment=${{ secrets.INCREMENT_TYPE }}" >> $GITHUB_ENV
-          fi
       - name: Get next version
-        uses: reecetech/version-increment@2023.10.2
+        uses: reecetech/version-increment@2026.8.4
         id: version
         with:
-          release_branch: main
+          release_branch: master
           use_api: true
-          increment: ${{ env.increment }}
+          increment: ${{ github.event.inputs.bump_type || 'patch' }}
 
   upload_release:
-    if: github.repository == 'adwise-fiu/Ciphercraft'
-    needs: [ create_release ]
+    needs: [ get_version ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Create JAR file
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: 'oracle'
-          java-version: '17'
+          java-version: '21'
           cache: 'gradle'
       # Remove the leading v from the version string and set it as an environment variable
-      - run: |
+      - name: Set RELEASE_VERSION environment variable and create JAR file
+        run: |
+          ./gradlew publishToMavenLocal
           VERSION=${{ needs.create_release.outputs.v-version }}
           VERSION=${VERSION#v}
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
@@ -51,8 +55,8 @@ jobs:
       # https://central.sonatype.org/publish/publish-portal-api/
       # https://central.sonatype.com/api-doc
       - name: Create Bundle.zip file and use Publisher API
+        if: github.repository == 'ADWISE-VCU/Ciphercraft' && github.ref == 'refs/heads/main'
         run: |
-          ./gradlew publishToMavenLocal
           bash create_bundle.sh $VERSION
           curl --request POST \
             --verbose \
@@ -72,8 +76,8 @@ jobs:
 
       # You want to use the 'ciphercraft-<version>.jar' for your uses
       - name: Release the JAR file
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ needs.create_release.outputs.v-version }}
+          tag_name: ${{ needs.get_version.outputs.v-version }}
           files: build/libs/ciphercraft*.jar
           token: ${{ secrets.GITHUB_TOKEN }}
