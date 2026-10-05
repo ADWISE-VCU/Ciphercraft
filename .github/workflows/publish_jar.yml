@@ -47,10 +47,10 @@ jobs:
       # Remove the leading v from the version string and set it as an environment variable
       - name: Set RELEASE_VERSION environment variable and create JAR file
         run: |
-          ./gradlew publishToMavenLocal
-          VERSION=${{ needs.create_release.outputs.v-version }}
+          VERSION=${{ needs.get_version.outputs.v-version }}
           VERSION=${VERSION#v}
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          ./gradlew publishToMavenLocal
 
       # https://central.sonatype.org/publish/publish-portal-api/
       # https://central.sonatype.com/api-doc

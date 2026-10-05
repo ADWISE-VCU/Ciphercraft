@@ -4,6 +4,7 @@ plugins {
     id 'application'
     id 'maven-publish'
     id 'signing'
+    id 'io.github.ben-manes.versions' version '0.64.0'
 }
 // name is set in settings.gradle
 group 'io.github.andrewquijano'
@@ -17,25 +18,25 @@ repositories {
 java {
     withJavadocJar()
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 dependencies {
     // Only use full log4j API in testing, but in deployment use API for others to use the library
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
-    testImplementation 'org.apache.logging.log4j:log4j-core:2.24.3'
+    testImplementation 'org.apache.logging.log4j:log4j-core:2.26.1'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0-M1'
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api
-    implementation 'org.apache.logging.log4j:log4j-api:2.24.3'
+    implementation 'org.apache.logging.log4j:log4j-api:2.26.1'
     // https://mvnrepository.com/artifact/commons-io/commons-io
-    implementation 'commons-io:commons-io:2.16.1'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
+    implementation 'commons-io:commons-io:2.22.0'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.86'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-// Commenting because it doesn't work well on TravisCI
 test {
     testLogging {
 // Make sure output from
@@ -50,7 +51,6 @@ test {
     ]
 }
 
-// This library was built for Java 8 so it can be imported into Android as well.
 // If you want to use a later version of Java, this should help point what to tweak.
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile).tap {
