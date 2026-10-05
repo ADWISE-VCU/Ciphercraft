@@ -1,23 +1,35 @@
 Documentation:
-  - '**/*.md'
+  - changed-files:
+      - any-glob-to-any-file:
+        - '**/*.md'
 
 Github-files:
-  - '.github/**'
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
 
 Tests:
-  - 'src/tests/**'
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/tests/**'
 
 Papers:
-  - 'papers/**'
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'papers/**'
 
 Gradle:
-  - 'build.gradle'
-  - '**/build.gradle'
-  - '**/gradle.properties'
-  - '**/settings.gradle'
-  - '**/gradlew'
-  - '**/gradlew.bat'
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'build.gradle'
+      - '**/build.gradle'
+      - '**/gradle.properties'
+      - '**/settings.gradle'
+      - '**/gradlew'
+      - '**/gradlew.bat'
 
 Core:
-  - 'src/main/java/**'
-  - 'src/main/resources/**'
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/main/java/**'
+      - 'src/main/resources/**'

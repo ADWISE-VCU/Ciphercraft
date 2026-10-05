@@ -27,7 +27,7 @@ jobs:
         uses: reecetech/version-increment@2026.8.4
         id: version
         with:
-          release_branch: master
+          release_branch: main
           use_api: true
           increment: ${{ github.event.inputs.bump_type || 'patch' }}
 

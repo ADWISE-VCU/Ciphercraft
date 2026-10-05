@@ -90,7 +90,7 @@ tasks.register('generateJavadoc', Javadoc) {
     options.encoding = 'UTF-8'
     options.memberLevel = JavadocMemberLevel.PUBLIC
     options.addStringOption('Xdoclint:none', '-quiet')
-    options.docTitle = 'Homomorphic Encryption API'
+    options.docTitle = 'Ciphercraft API'
 }
 
 // Define a task to run your Java application with the agent
@@ -117,7 +117,7 @@ publishing {
                 description.set('This is a library that implements partially homomorphic encryption algorithms: ' +
                         'Paillier, ElGamal, and DGK. This also implements various two-party protocols for secure ' +
                         'computation such as multiplication, division and comparison')
-                url.set('https://github.com/adwise-fiu/Ciphercraft')
+                url.set('https://github.com/adwise-vcu/Ciphercraft')
 
                 licenses {
                     license {
@@ -132,18 +132,15 @@ publishing {
                         name.set('Andrew Quijano')
                         email.set('andrew.quijano@nyu.edu')
                         roles.add('Lead Developer')
+                        organization.set('New York University')
+                        organizationUrl.set('https://www.nyu.edu')
                     }
                 }
 
-                organization {
-                    name.set('New York University')
-                    url.set('https://www.nyu.edu')
-                }
-
                 scm {
-                    connection.set('scm:git:git://github.com/adwise-fiu/Ciphercraft.git')
-                    developerConnection.set('scm:git:ssh://github.com:adwise-fiu/Ciphercraft.git')
-                    url.set('https://github.com/adwise-fiu/Ciphercraft')
+                    connection.set('scm:git:git://github.com/adwise-vcu/Ciphercraft.git')
+                    developerConnection.set('scm:git:ssh://github.com:adwise-vcu/Ciphercraft.git')
+                    url.set('https://github.com/adwise-vcu/Ciphercraft')
                 }
             }
         }
