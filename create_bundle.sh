@@ -1,38 +1,57 @@
 #!/bin/bash
+set -euo pipefail
 
-# Check if a version argument is provided
-if [ -z "$1" ]; then
+if [ -z "${1:-}" ]; then
   echo "Usage: $0 <version>"
   exit 1
 fi
 
-# First, you do need to run './gradlew publish' to generate the artifacts.
-# I can't publish via API, but I can create a bundle for manual upload.
+VERSION="$1"
+BASE="io/github/andrewquijano/ciphercraft/$VERSION"
 
-VERSION=$1
-# Use this script as a stop gap for manual uploading
-mkdir -p io/github/andrewquijano/ciphercraft/$VERSION
-cp build/libs/* io/github/andrewquijano/ciphercraft/$VERSION/
-cp build/publications/mavenJava/pom-default.xml io/github/andrewquijano/ciphercraft/$VERSION/ciphercraft-$VERSION.pom
-cp build/publications/mavenJava/pom-default.xml.asc io/github/andrewquijano/ciphercraft/$VERSION/ciphercraft-$VERSION.pom.asc
+mkdir -p "$BASE"
 
-# Loop through all files in the specified directory
-for file in io/github/andrewquijano/ciphercraft/$VERSION/*; do
-  # Print the file being checked
+# Expected artifacts
+JAR="build/libs/ciphercraft-$VERSION.jar"
+JAVADOC="build/libs/ciphercraft-$VERSION-javadoc.jar"
+SOURCES="build/libs/ciphercraft-$VERSION-sources.jar"
+POM="build/publications/mavenJava/pom-default.xml"
+POM_SIG="$POM.asc"
+
+# Fail if Gradle produced the wrong version
+for file in "$JAR" "$JAVADOC" "$SOURCES" "$POM"; do
+  if [ ! -f "$file" ]; then
+    echo "ERROR: Expected artifact does not exist: $file"
+    echo "The build may have produced the wrong version."
+    exit 1
+  fi
+done
+
+# Signature is required for Maven Central
+if [ ! -f "$POM_SIG" ]; then
+  echo "ERROR: Missing POM signature: $POM_SIG"
+  echo "Was SIGNING_KEY configured?"
+  exit 1
+fi
+
+# Copy only the exact expected artifacts
+cp "$JAR" "$BASE/"
+cp "$JAVADOC" "$BASE/"
+cp "$SOURCES" "$BASE/"
+
+cp "$POM" "$BASE/ciphercraft-$VERSION.pom"
+cp "$POM_SIG" "$BASE/ciphercraft-$VERSION.pom.asc"
+
+for file in "$BASE"/*; do
   echo "Processing file: $file"
 
-  # Skip files ending with .asc
   if [[ -f "$file" && ! "$file" =~ \.asc$ ]]; then
     echo "Generating hashes for: $file"
-
-    # Generate SHA1 checksum
     sha1sum "$file" | awk '{print $1}' > "${file}.sha1"
-
-    # Generate MD5 checksum
     md5sum "$file" | awk '{print $1}' > "${file}.md5"
   else
     echo "Skipping file: $file"
   fi
 done
 
-zip -r bundle.zip io/
+zip -r bundle.zip io

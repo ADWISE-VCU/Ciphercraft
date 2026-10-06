@@ -51,7 +51,10 @@ jobs:
           VERSION=${{ needs.get_version.outputs.v-version }}
           VERSION=${VERSION#v}
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          export VERSION
           ./gradlew publishToMavenLocal
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
       # https://central.sonatype.org/publish/publish-portal-api/
       # https://central.sonatype.com/api-doc
