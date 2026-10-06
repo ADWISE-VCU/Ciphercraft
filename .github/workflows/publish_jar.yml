@@ -32,6 +32,7 @@ jobs:
           increment: ${{ github.event.inputs.bump_type || 'patch' }}
 
   upload_release:
+    name: "Create Release and upload JAR file to Maven and GitHub"
     needs: [ get_version ]
     runs-on: ubuntu-latest
     steps:
@@ -49,7 +50,7 @@ jobs:
         run: |
           VERSION=${{ needs.get_version.outputs.v-version }}
           VERSION=${VERSION#v}
-          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           ./gradlew publishToMavenLocal
 
       # https://central.sonatype.org/publish/publish-portal-api/
@@ -72,7 +73,6 @@ jobs:
         env:
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          VERSION: ${{ env.RELEASE_VERSION }}
 
       # You want to use the 'ciphercraft-<version>.jar' for your uses
       - name: Release the JAR file
